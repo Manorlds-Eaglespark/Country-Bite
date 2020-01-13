@@ -2,13 +2,10 @@ import os
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 from app.views import db, create_app
-from app.models.user import User
-from app.models.amenities import Amenity
-from app.models.agents import Agent
-from app.models.locations import Location
-from app.models.photos import Photo
-from app.models.properties import Property
-from app.models.reviews import Review
+from app.models.users import User
+from app.models.countries import Country
+from app.models.posts import Post
+from app.models.comments import Comment
 
 app = create_app(config_name=os.getenv('APP_SETTINGS'))
 migrate = Migrate(app, db)
