@@ -13,7 +13,7 @@ def login_required(f):
             user_id = user_details[0]
             country = user_details[1]
             if isinstance(user_id, str):
-                return make_response(jsonify({"status": 401, "error": user_id})), 401
+                return make_response(jsonify({"status": 401, "error": user_details})), 401
             current_user = user_id
             return f(current_user, country, *args, **kwargs)
         else:
@@ -33,7 +33,7 @@ def decode_token(token):
                 os.getenv('SECRET')), algorithms='HS256')
         return [payload['sub'], payload['cty']]
     except jwt.ExpiredSignatureError:
-        return "Please login to get a session"
+        return "Please login to get a new session"
     except jwt.InvalidTokenError:
         return "Please register or login"
     return None

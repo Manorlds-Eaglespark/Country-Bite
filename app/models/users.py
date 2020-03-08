@@ -11,8 +11,12 @@ class User(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255))
-    country = db.Column(db.String(255))
+    country = db.Column(db.Integer)
     email = db.Column(db.String(255))
+    about = db.Column(db.String(255))
+    shopOwner = db.Column(db.Integer)
+    profile_img = db.Column(db.String(255))
+    img_del_hash = db.Column(db.String(255))
     password = db.Column(db.String(255))
     phonenumber = db.Column(db.String(255))
     created_on = db.Column(db.DateTime, default=db.func.current_timestamp())
@@ -22,8 +26,10 @@ class User(db.Model):
         self.name = user_obj['name']
         self.country = user_obj['country']
         self.email = user_obj['email']
+        self.about = user_obj['about']
         self.password = Bcrypt().generate_password_hash(user_obj['password']).decode()
         self.phonenumber = user_obj['phonenumber']
+        self.shopOwner = 0
     
     def save(self):
         db.session.add(self)
@@ -32,6 +38,14 @@ class User(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
+    
+    def add_added(self, user_data):
+        if user_data["name"]:
+            self.name = user_data["name"]
+        if user_data["email"]:
+            self.email = user_data["email"]
+        if user_data["about"]:
+            self.about = user_data["about"]
 
     def check_password(self, password):
         return Bcrypt().check_password_hash(self.password, password)
@@ -56,7 +70,7 @@ class User(db.Model):
 
 class UserSchema(ma.Schema):
     class Meta:
-        fields = ("id", "name", "country", "email", "phonenumber")
+        fields = ("id", "name", "country", "profile_img", "about", "email", "phonenumber", "shopOwner")
 
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)

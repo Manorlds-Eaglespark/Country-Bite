@@ -1,4 +1,4 @@
-from datetime import datetime
+import datetime
 from shared import db, ma
 from app.models.users import User
 
@@ -6,20 +6,17 @@ class Post(db.Model):
     __tablename__ = 'posts'
     id = db.Column(db.Integer, primary_key=True)
     message = db.Column(db.String(255))
-    image_url = db.Column(db.String(100))
-    country = db.Column(db.String(100))
-    image_delete_hash = db.Column(db.String(100))
+    country = db.Column(db.Integer)
     posted_by = db.Column(db.Integer, db.ForeignKey(User.id))
-    posted_at = db.Column(db.DateTime, default=db.func.current_timestamp())
-    user = db.relationship('User', backref='cart')
+    posted_at = db.Column(db.String(25))
+    user = db.relationship('User', backref='post')
 
     def __init__(self, post_object):
         """Initialize a Post object"""
         self.country = post_object["country"]
         self.message = post_object["message"]
-        self.image_url = post_object["image_url"]
-        self.image_delete_hash = post_object["image_delete_hash"]
         self.posted_by = post_object["posted_by"]
+        self.posted_at = datetime.datetime.now()
     
     def save(self):
         db.session.add(self)
