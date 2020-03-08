@@ -1,5 +1,5 @@
 import os
-import jwt
+from flask_jwt_extended import create_access_token
 from shared import db, ma
 from flask_bcrypt import Bcrypt
 from datetime import datetime, timedelta
@@ -11,8 +11,11 @@ class User(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255))
-    country = db.Column(db.String(255))
+    country = db.Column(db.Integer)
     email = db.Column(db.String(255))
+    about = db.Column(db.String(255))
+    profile_img = db.Column(db.String(255))
+    img_del_hash = db.Column(db.String(255))
     password = db.Column(db.String(255))
     phonenumber = db.Column(db.String(255))
     created_on = db.Column(db.DateTime, default=db.func.current_timestamp())
@@ -22,6 +25,7 @@ class User(db.Model):
         self.name = user_obj['name']
         self.country = user_obj['country']
         self.email = user_obj['email']
+        self.about = user_obj['about']
         self.password = Bcrypt().generate_password_hash(user_obj['password']).decode()
         self.phonenumber = user_obj['phonenumber']
     
@@ -32,31 +36,25 @@ class User(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
+    
+    def add_added(self, user_data):
+        if user_data["name"]:
+            self.name = user_data["name"]
+        if user_data["email"]:
+            self.email = user_data["email"]
+        if user_data["about"]:
+            self.about = user_data["about"]
+
+    def add_image(self, image_url):
+        self.profile_img = image_url
 
     def check_password(self, password):
         return Bcrypt().check_password_hash(self.password, password)
-
-    def generate_token(self):
-        try:
-            payload = {
-                'exp': datetime.utcnow() + timedelta(minutes=360),
-                'iat': datetime.utcnow(),
-                'sub': self.id,
-                'cty': self.country
-            }
-            jwt_string = jwt.encode(
-                payload,
-                str(os.getenv('SECRET')),
-                algorithm='HS256'
-            )
-            return jwt_string
-
-        except Exception as e:
-            return str(e)
+        
 
 class UserSchema(ma.Schema):
     class Meta:
-        fields = ("id", "name", "country", "email", "phonenumber")
+        fields = ("id", "name", "country", "profile_img", "about", "email", "phonenumber")
 
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
