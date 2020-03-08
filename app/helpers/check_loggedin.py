@@ -9,11 +9,13 @@ def login_required(f):
         access_token = get_token()
         if access_token:
             access_token = str(access_token).split(" ")[0]
-            user_id = decode_token(access_token)
+            user_details = decode_token(access_token)
+            user_id = user_details[0]
+            country = user_details[1]
             if isinstance(user_id, str):
                 return make_response(jsonify({"status": 401, "error": user_id})), 401
             current_user = user_id
-            return f(current_user, *args, **kwargs)
+            return f(current_user, country, *args, **kwargs)
         else:
             return make_response(jsonify({"status":401, "error": "Login to complete this action"})), 401
     return wrap
@@ -29,7 +31,7 @@ def decode_token(token):
         payload = jwt.decode(
             token, str(
                 os.getenv('SECRET')), algorithms='HS256')
-        return payload['sub']
+        return [payload['sub'], payload['cty']]
     except jwt.ExpiredSignatureError:
         return "Please login to get a session"
     except jwt.InvalidTokenError:

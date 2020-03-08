@@ -42,7 +42,7 @@ class User(db.Model):
                 'exp': datetime.utcnow() + timedelta(minutes=360),
                 'iat': datetime.utcnow(),
                 'sub': self.id,
-                'owns_shop': self.owns_shop
+                'cty': self.country
             }
             jwt_string = jwt.encode(
                 payload,
